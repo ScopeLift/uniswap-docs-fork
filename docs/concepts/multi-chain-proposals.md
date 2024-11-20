@@ -1,57 +1,62 @@
 ---
-id: proposals-on-L2
-title: Proposals on L2
+id: multi-chain-proposals
+title: Multi-Chain Proposals
 ---
 
 This is a living document which represents the current process guidelines for developing and advancing multi-chain Uniswap Governance Proposals. It was last updated Novenber 2024.
 
 ## Introduction
 
-Uniswap V3 has now been deployed across 24 Layer 2 blockchains. However, because Uniswap governance (using GovernorBravo and its associated Timelock contract) executes approved proposals on Ethereum mainnet, implementing changes on these L2 blockchains requires some extra steps in the proposals' executable code.
+Uniswap V3 has now been deployed across 24 blockchain networks, including many Layer 2 chains.
+However, because Uniswap governance (using GovernorBravo and its associated Timelock contract) executes approved proposals on Ethereum mainnet, implementing changes on these other blockchains requires some extra steps in the proposals' executable code.
 
-For a proposal to successfully enact changes on a Layer 2 chain, the proposal's code must transmit the necessary code effect the change to the specific target L2 for execution.
-A variety of mechanisms are used my Uniswap V3 on the individual Layer 2 chains to receive the proposal code, although in some cases, similar or even identical communication methods and contracts are used to bridge proposals from Ethereum mainnet to the target chain.
+For a proposal to successfully enact changes on a non-mainnet chain, the proposal's code must transmit the necessary code effect the change to the specific target chain for execution.
+A variety of mechanisms are used my Uniswap V3 on the individual non-mainnet chains to receive the proposal code, although in some cases, similar or even identical communication methods and contracts are used to bridge proposals from Ethereum mainnet to the target chain.
 
-This document provides a detailed guide on constructing such proposals for each target L2 chain, including Solidity code snippets for each general approach.
+This document provides a detailed guide on constructing such proposals for each target non-mainnet chain, including Solidity code snippets for each general approach.
 The code snippets are written as Forge/Foundry scripts, and assume they are being run on the Forge platform, in a code repository with the necessary libraries (forge-std, uniswap-v3-core, and uniswap-v3-periphery) imported.
 It is important to note that the code provided here is a general template and may require modification to suit the specific requirements of the target chain.
 
 ## Overview
 
-There are 9 chains where Uniswap V3 is deployed that use Optimism style cross-chain communication, using the `L1CrossDomainMessenger` contract for sending proposals to L2, and the `CrossChainAccount` contract for forwarding the executable proposals to Uniswap V3 on the L2 network.
+There are 9 chains where Uniswap V3 is deployed that use Optimism style cross-chain communication, using the `L1CrossDomainMessenger` contract for sending proposals to the destination chain, and the `CrossChainAccount` contract for forwarding the executable proposals to Uniswap V3 on the Optimism-style network.
 A Solidity code example for Optimism is provided [below](#crosschainaccount-proposal-bridging-example). This code can also be used for sending proposals to the other 8 chains, with minor changes to the actual deployed address constants for the targeted contracts.
 
-There are 4 chains where Uniswap V3 is deployed that use Wormhole for bridging proposals. They all use the same Ethereum mainnet instance of the `UniswapWormholeMessageSender` contract for sending proposals to L2. In addition to the proposal message parameters, the `sendMessage` function of this contract also takes both a target address for the message receiving contract on the L2 chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple L2 chains. 
+There are 4 chains where Uniswap V3 is deployed that use Wormhole for bridging proposals.
+They all use the same Ethereum mainnet instance of the `UniswapWormholeMessageSender` contract for sending proposals to the target chain.
+In addition to the proposal message parameters, the `sendMessage` function of this contract also takes both a target address for the message receiving contract on the non-mainnet chain, as well as its Chain ID as parameters, allowing the function to be used for sending to multiple destination chains. 
 A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided [below](#wormhole-proposal-bridging-example).
 This code can be used for sending proposals to the other 3 chains (Gnosis Chain, Moonbeam, and Rootstock), with the only changes needed being the actual depoloyed address constants for the targeted contracts.
 
-Each of the sections below provides a high-level description of the method used to bridge proposals to each target L2 chain.
+Each of the sections below provides a high-level description of the method used to bridge proposals to each target non-mainnet chain.
 
 #### Arbitrum Cross-chain Communication
 
 Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value 0x1111000000000000000000000000000000001111) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown [below](#arbitrum-proposal-bridging-details).
 
-#### AVAX Cross-chain Communication
+#### Avalanch/AVAX Cross-chain Communication
 
-AVAX makes use of a contract called `OmnichainGovernanceExecutor`.. TODO: Add details
+AVAX makes use of a contract called `OmnichainGovernanceExecutor` to receive proposals from Ethereum mainnet.
+From Ethereum mainnet, the contract called LayerZero:EndpointV2 0x1a44076050125825900e736c501f859c50fe728c is used, via function `send` to send proposals to the `OmnichainGovernanceExecutor` contract on AVAX. A Solidity code example for sending a proposal to AVAX is [below](#avax-proposal-bridging-details).
 
 #### Base Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Base is one of the 9 L2 chains that makes use of the CrossChainAccount contract.
+Base is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Blast Chain Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Blast Chain is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Blast Chain is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### BNB Chain Cross-chain Communication
 
-BNB Chain is one of the 4 L2 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the L2 chain. A Solidity code example for sending a proposal to BNB Chain is [below](#wormhole-proposal-bridging-details).
+BNB Chain is one of the 4 chains that makes use of a contract called `UniswapWormholeMessageReceiver`.
+On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the destination chain. A Solidity code example for sending a proposal to BNB Chain is [below](#wormhole-proposal-bridging-details).
 
 #### Boba Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Boba is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Boba is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Celo Chain Cross-chain Communication
@@ -64,38 +69,38 @@ Filecoin EVM  ?? TODO: Add details
 
 #### Gnosis Cross-chain Communication
 
-Gnosis Chain is one of the 4 L2 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the L2 chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
+Gnosis Chain is one of the 4 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the destination chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
 
 
 #### Linea Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Linea is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Linea is one of the 9 chains that makes use of the CrossChainAccount contract.
 Linea, however, uses a slightly different contracts from L1CrossDomainMessenger, called L1MessageService for sending messages,
 with different call parameters. See the Linea-specific Solidity code example provided [below](#linea-proposal-bridging-details).
 
 #### Manta Pacific Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Manta Pacific is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Manta Pacific is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Mantle Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Mantle is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Mantle is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Moonbeam Cross-chain Communication
 
-Moonbeam is one of the 4 L2 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the L2 chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
+Moonbeam is one of the 4 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the destination chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
 
 
 #### Optimism Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Optimism is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Optimism is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Polygon Cross-chain Communication
 
-Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon L2 for forwarding the executable proposals to Uniswap V3 on Polygon. A Solidity code example for sending a proposal to Polygon is [below](#polygon-ethereumproxy-proposal-bridging-details).
+Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon chain for forwarding the executable proposals to Uniswap V3 on Polygon. A Solidity code example for sending a proposal to Polygon is [below](#polygon-ethereumproxy-proposal-bridging-details).
 
 #### Polygon zkEVM Cross-chain Communication
 
@@ -103,12 +108,12 @@ Polygon zkEVM uses a different approach than Polygon  TODO: Add details
 
 #### Redstone Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Redstone is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Redstone is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 #### Rootstock Cross-chain Communication
 
-Rootstock is one of the 4 L2 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the L2 chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
+Rootstock is one of the 4 chains that makes use of a contract called `UniswapWormholeMessageReceiver`. On the Ethereum mainnet L1 side, the `UniswapWormholeMessageSender` contract is used to send proposals to the destination chain. See the Solidity code example provided for the BNB Chain [below](#wormhole-proposal-bridging-details).
 
 
 #### Scroll Cross-chain Communication
@@ -129,11 +134,11 @@ Worldcoin makes use of an unverified contract. TODO: Add details
 
 #### ZkSync Era Cross-chain Communication
 
-ZkSync Era uses the Arbitrum-style approach where the parent of the V3Factory contract is an L2 aliased address, but the method of sending the proposal is different than the one used for Arbitrum. TODO: Add details
+ZkSync Era uses the Arbitrum-style approach where the parent of the V3Factory contract is an aliased address, but the method of sending the proposal is different than the one used for Arbitrum. TODO: Add details
 
 #### Zora Cross-chain Communication Via CrossChainAccount (Optimism Style)
 
-Zora is one of the 9 L2 Chains that makes use of the CrossChainAccount contract.
+Zora is one of the 9 chains that makes use of the CrossChainAccount contract.
 See the Solidity code example provided for Optimism [below](#optimism-style-proposal-bridging-details).
 
 
@@ -164,22 +169,22 @@ contract EthereumToArbitrumSender is Script {
     // Address of the Arbitrum Inbox on Ethereum (L1)
     address constant INBOX_ADDRESS = 0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f;
 
-    // target addresses on Arbitrum L2
+    // target addresses on Arbitrum
     address v3FactoryTargetAddress = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Arbitrum L2.
+    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Arbitrum.
     // Upon execution of the proposal, the Inbox contract function createRetryableTicket is called, containing calldata for the
-    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on Arbitrum L2
-    function proposeForExecutionOnArbitrumL2() external payable {
-        // setup calldata for the L2 uniswap v3Factory.enableFeeAmount call
+    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on Arbitrum
+    function proposeForExecutionOnArbitrum() external payable {
+        // setup calldata for the Arbitrum uniswap v3Factory.enableFeeAmount call
         bytes memory _v3FactoryEnableFeeAmounCalldata =
             abi.encodeWithSelector(IUniswapV3Factory.enableFeeAmount.selector, 10000, 205);
 
         // setup calldata for the creating retryable ticket
-        uint256 l2CallValue = 0; // Amount of ETH to send with the call on L2
+        uint256 callValue = 0; // Amount of ETH to send with the call on Arbitrum
         uint256 maxSubmissionCost = 0.01 ether; // Estimated cost for submission
-        uint256 maxGas = 1_000_000; // Maximum gas for L2 execution
-        uint256 gasPriceBid = 1 gwei; // Gas price for L2 execution
+        uint256 maxGas = 1_000_000; // Maximum gas for Arbitrum execution
+        uint256 gasPriceBid = 1 gwei; // Gas price for Arbitrum execution
 
         // Define refund addresses for excess fees and call value
         address excessFeeRefundAddress = msg.sender;
@@ -188,7 +193,7 @@ contract EthereumToArbitrumSender is Script {
         // setup calldata for the proposal
         bytes memory _proposalCalldata = abi.encode(
             v3FactoryTargetAddress,
-            l2CallValue,
+            callValue,
             maxSubmissionCost,
             excessFeeRefundAddress,
             callValueRefundAddress,
@@ -213,7 +218,7 @@ contract EthereumToArbitrumSender is Script {
             _values,
             _signatures,
             _calldatas,
-            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Arbitrum L2"
+            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Arbitrum"
         );
         console2.log("Proposal ID: %d", _proposalId);
     }
@@ -245,23 +250,23 @@ interface IUniswapGovernorBravoDelegator {
 }
 
 contract OptimismExample is Script {
-    // target address for the cross domain messenger on Ethereum L1 responsible for sending messages to Optimism L2
+    // target address for the cross domain messenger on Ethereum L1 responsible for sending messages to Optimism
     //  (this address would be different for Base, Blast, or Zora)
     address constant l1CrossDomainMessengerAddress = 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1;
 
-    // target addresses on Optimism L2 (these addresses would be different for Base, Blast, or Zora)
+    // target addresses on Optimism (these addresses would be different for Base, Blast, or Zora)
     address constant v3FactoryTargetAddress = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
     address constant crossChainAccountTargetAddress = 0xa1dD330d602c32622AA270Ea73d078B803Cb3518;
 
     // target address for UniSwap DAO governor bravo delegate contract on Ethereum L1
     address uniswapGovernorBravoDelegatorAddress = 0x408ED6354d4973f66138C91495F2f2FCbd8724C3;
 
-    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Optimism L2.
+    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Optimism.
     // Upon execution of the proposal, the L1CrossDomainMessenger function sendMessage is called containing calldata for the
-    // CrossChainAccount.forward function on Optimism L2 will be called containing calldata for the uniswap v3 factory
-    // to enable a fee amount on Uniswap V3 Factory on Optimism L2
-    function proposeForExecutionOnOptimismL2() public {
-        // setup calldata for the L2 uniswap v3Factory.enableFeeAmount call
+    // CrossChainAccount.forward function on Optimism that will be called containing calldata for the uniswap v3 factory
+    // to enable a fee amount on Uniswap V3 Factory on Optimism
+    function proposeForExecutionOnOptimism() public {
+        // setup calldata for the Optimism uniswap v3Factory.enableFeeAmount call
         bytes memory _v3FactoryEnableFeeAmounCalldata =
             abi.encodeWithSelector(IUniswapV3Factory.enableFeeAmount.selector, 10000, 205);
 
@@ -285,7 +290,7 @@ contract OptimismExample is Script {
             _values,
             _signatures,
             _calldatas,
-            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Optimism L2"
+            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Optimism"
         );
         console2.log("Proposal ID: %d", _proposalId);
     }
@@ -336,10 +341,10 @@ For Zora:
 
 ## Wormhole Proposal Bridging Details
 
-To create a proposal that (when successfully passed, queued, and executed) would effect a change on Uniswap V3 on an L2 chain via wormhole, the proposal would have to contain a call to the function called `sendMessage` on the one instance of the `UniswapWormholeMessageSender` contract on Ethereum mainnet.
-In addition to the proposal message parameters, the function of also takes both a target address for the message receiving contract on the L2 chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple L2 chains.
+To create a proposal that (when successfully passed, queued, and executed) would effect a change on Uniswap V3 on a destination chain via wormhole, the proposal would have to contain a call to the function called `sendMessage` on the one instance of the `UniswapWormholeMessageSender` contract on Ethereum mainnet.
+In addition to the proposal message parameters, the function also takes both a target address for the message receiving contract on the destination chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple destination chains.
 
-There are 4 chains where Uniswap V3 is deployed that use the same Ethereum mainnet instance of the `UniswapWormholeMessageSender` contract for sending proposals to L2.
+There are 4 chains where Uniswap V3 is deployed that use the same Ethereum mainnet instance of the `UniswapWormholeMessageSender` contract for sending proposals to the target.
 A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below.
 This code can be used for sending proposals to the other 3 chains, with the only changes needed being the actual depoloyed address constants for the targeted contracts.
 
@@ -363,27 +368,27 @@ interface IUniswapGovernorBravoDelegator {
     ) external returns (uint256);
 }
 
-contract EthereumToAPolygonSender is Script {
+contract EthereumToBnbChainSender is Script {
     // target address for UniSwap DAO governor bravo delegate
     address uniswapGovernorBravoDelegatorAddress = 0x408ED6354d4973f66138C91495F2f2FCbd8724C3;
 
     // Address of the WormholdMessageSender contract on Ethereum (L1)
     address constant WORMHOLE_MESSAGE_SENDER_ADDRESS = 0xf5F4496219F31CDCBa6130B5402873624585615a;
 
-    // Address of the WormholeMessageReceiver contract on BNB Chain (L2)
+    // Address of the WormholeMessageReceiver contract on BNB Chain
     address constant WORMHOLE_MESSAGE_RECEIVER_ADDRESS = 0x341c1511141022cf8eE20824Ae0fFA3491F1302b;
 
-    // BNB Chain (L2) chainId
+    // BNB Chain chainId
     uint256 constant CHAIN_ID = 56;
 
-    // target addresses on BNB Chain L2
+    // target addresses on BNB Chain
     address v3FactoryTargetAddress = 0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7;
 
-    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on BNB Chain L2.
+    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on BNB Chain.
     // Upon execution of the proposal, the WormholeMessageSender contract function sendMessage is called, containing calldata for the
-    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on Arbitrum L2.
-    function proposeForExecutionOnBnbChainL2() external payable {
-        // setup calldata for the L2 uniswap v3Factory.enableFeeAmount call
+    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on BNB Chain.
+    function proposeForExecutionOnBnbChain() external payable {
+        // setup calldata for the destination chain uniswap v3Factory.enableFeeAmount call
         bytes memory _v3FactoryEnableFeeAmounCalldata =
             abi.encodeWithSelector(IUniswapV3Factory.enableFeeAmount.selector, 10000, 205);
 
@@ -395,11 +400,7 @@ contract EthereumToAPolygonSender is Script {
         _sendMessageValues[0] = 0;
         _sendMessageCalldatas[0] = _v3FactoryEnableFeeAmounCalldata;
         bytes memory _sendMessageCalldata = abi.encode(
-            _sendMessageTargets,
-            _sendMessageValues,
-            _sendMessageCalldatas,
-            WORMHOLE_MESSAGE_RECEIVER_ADDRESS,
-            CHAIN_ID
+            _sendMessageTargets, _sendMessageValues, _sendMessageCalldatas, WORMHOLE_MESSAGE_RECEIVER_ADDRESS, CHAIN_ID
         );
 
         // make the proposal on the L1 side
@@ -417,7 +418,7 @@ contract EthereumToAPolygonSender is Script {
             _values,
             _signatures,
             _calldatas,
-            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Polygon L2"
+            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on BNB Chain"
         );
         console2.log("Proposal ID: %d", _proposalId);
     }
@@ -469,14 +470,14 @@ contract PolygonExample is Script {
     // Address of the FxRoot contract Ethereum (L1)
     address constant FXROOT_ADDRESS = 0xfe5e5D361b2ad62c541bAb87C45a0B9B018389a2;
 
-    // target addresses on Polygon L2
+    // target addresses on Polygon
     address v3FactoryTargetAddress = 0x1F98431c8aD98523631AE4a59f267346ea31F984;
 
-    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Polygon L2.
+    // function to create a proposal on Ethereum L1 to enable a fee amount on the Uniswap V3 Factory on Polygon.
     // Upon execution of the proposal, the FxRoot contract function sendMessageToChild is called, containing calldata for the
-    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on Arbitrum L2.
-    function proposeForExecutionOnPolygonL2() external payable {
-        // setup calldata for the L2 uniswap v3Factory.enableFeeAmount call
+    // uniswap v3 factory to enable a fee amount on Uniswap V3 Factory on Polygon.
+    function proposeForExecutionOnPolygon() external payable {
+        // setup calldata for the uniswap v3Factory.enableFeeAmount call
         bytes memory _v3FactoryEnableFeeAmounCalldata =
             abi.encodeWithSelector(IUniswapV3Factory.enableFeeAmount.selector, 10000, 205);
 
@@ -498,7 +499,7 @@ contract PolygonExample is Script {
             _values,
             _signatures,
             _calldatas,
-            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Polygon L2"
+            "Proposal to enable 10000 fee amount of 205 on Uniswap V3 Factory on Polygon"
         );
         console2.log("Proposal ID: %d", _proposalId);
     }
