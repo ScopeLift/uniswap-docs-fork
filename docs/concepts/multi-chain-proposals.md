@@ -10,8 +10,8 @@ This is a living document which represents the current process guidelines for de
 Uniswap V3 has now been deployed across 24 blockchain networks, including many Layer 2 chains.
 However, because Uniswap governance (using GovernorBravo and its associated Timelock contract) executes approved proposals on Ethereum mainnet, implementing changes on these other blockchains requires some extra steps in the proposals' executable code.
 
-For a proposal to successfully enact changes on a non-mainnet chain, the proposal's code must transmit the necessary code effect the change to the specific target chain for execution.
-A variety of mechanisms are used my Uniswap V3 on the individual non-mainnet chains to receive the proposal code, although in some cases, similar or even identical communication methods and contracts are used to bridge proposals from Ethereum mainnet to the target chain.
+For a proposal to successfully enact changes on a non-mainnet chain, the proposal's code must transmit the necessary code to effect the change on the specific target chain for execution.
+A variety of mechanisms are used on the individual non-mainnet chains to receive the proposal code, although in some cases, similar or even identical communication methods and contracts are used to bridge proposals from Ethereum mainnet to the target chain.
 
 This document provides a detailed guide on constructing such proposals for each target non-mainnet chain, including Solidity code snippets for each general approach.
 The code snippets are written as Forge/Foundry scripts, and assume they are being run on the Forge platform, in a code repository with the necessary libraries (forge-std, uniswap-v3-core, and uniswap-v3-periphery) imported.
@@ -42,7 +42,7 @@ The table below contains links to the various proposal methods for each chain.
 
 Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value 0x1111000000000000000000000000000000001111) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown below.
 
-Proposal calldata intended for Arbitrum should be forwarded through a call to `createRetryableTicket` on the Arbitrum Inbox contract.
+Proposal calldata on mainnet intended for Arbitrum should be forwarded through a call to `createRetryableTicket` on the Arbitrum Inbox contract.
 The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example:
 
 ```
@@ -305,7 +305,8 @@ Because 10 networks all use the same CrossChainAccount approach for communicatio
 
 ## Polygon
 
-Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon chain for forwarding the executable proposals to Uniswap V3 on Polygon. A Solidity code example for sending a proposal to Polygon is below.
+Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon chain for forwarding the executable proposals to Uniswap V3 on Polygon.
+
 Proposal calldata on mainnet meant for Polygon should be forwarded through a call to `sendMessageToChild` on the chain's corresponding mainnet `FxRoot` contract.
 The call would have wrapped calldata for a Uniswap contract function call that would effect the change. The FxRoot/FxChild tunnel would bridge that message to Polygon where FxChild would route the message the EthereumProxy parent contract of UniSwap V3. An example:
 
@@ -376,7 +377,7 @@ Polygon zkEVM uses a different approach than Polygon TODO: Add details
 
 ## Scroll
 
-Scroll also makes use of the CrossChainAccount contract for receiving proposals from Ethereum mainnet, but the way that messages are sent is different from the OP Stack approach.
+Scroll also makes use of the CrossChainAccount contract for receiving proposals from Ethereum mainnet, but the way that messages are sent is different from the other OP Stack approaches.
 Proposal calldata on mainnet meant for the Scroll chain should be forwarded through a call to `sendMessage` on the chain's corresponding mainnet `L1ScrollMessenger` contract.
 
 ```
@@ -403,7 +404,6 @@ interface IUniswapGovernorBravoDelegator {
 
 contract ScrollExample is Script {
     // target address for the cross domain messenger on Ethereum L1 responsible for sending messages to Scroll
-    //  (this address would be different for Base, Blast, or Zora)
     address constant L1_SCROLL_MESSENGER_ADDRESS = 0x6774Bcbd5ceCeF1336b5300fb5186a12DDD8b367;
 
     // target addresses on Scroll
@@ -452,7 +452,7 @@ contract ScrollExample is Script {
 ## Taiko
 
 Taiko makes use of a contract called `InvokableAccount`.
-On the Ethereum mainnet L1 side, a contract called `SignalService` has an 'emitSignal`function that must be called with appropriate calldata by the successful proposal to effect a change on the Taiko target chain. Proposal calldata on mainnet meant for the Taiko chain should be forwarded through a call to`emitSignal`on the chain's corresponding mainnet`SignalService` contract.
+Proposal calldata on mainnet meant for the Taiko chain should be forwarded through a call to`emitSignal`on the chain's corresponding mainnet`SignalService` contract.
 The call would have wrapped calldata for the Uniswap contract function call that would effect the change. An example:
 
 ```
@@ -515,7 +515,7 @@ contract TaikoExample is Script {
 ## Wormhole
 
 There are 5 chains where Uniswap V3 is deployed that use the same Ethereum mainnet instance of the `UniswapWormholeMessageSender` contract for sending proposals to the target.
-Proposal calldata on mainnet meant for a target chain using Wormhole should be forwarded through a call to `sendMessage` on the the mainnet `UniswapWormholeMessageSender` contract.
+Proposal calldata on mainnet meant for a target chain using Wormhole should be forwarded through a call to the `sendMessage` function of that contract.
 The function takes both a target address for the message receiving contract on the destination chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple destination chains.
 
 A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below.
@@ -596,7 +596,7 @@ contract EthereumToBnbChainSender is Script {
 }
 ```
 
-Because 5 networks all use the same Wormhole-based approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions. The definitions for all 5 networks that use Wormhole communicatino are below:
+Because 5 networks all use the same Wormhole-based approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 constant definitions. The definitions for all 5 networks that use Wormhole communication are below:
 
 | Network   | WORMHOLE_MESSAGE_RECEIVER_ADDRESS          | CHAIN_ID | V3FactoryTargetAddress                     |
 | --------- | ------------------------------------------ | -------- | ------------------------------------------ |
@@ -609,7 +609,6 @@ Because 5 networks all use the same Wormhole-based approach for communication, t
 ## ZkSync Era
 
 ZkSync Era uses the Arbitrum-style approach where the parent of the V3Factory contract is an aliased address, but the method of sending the proposal is different than the one used for Arbitrum.
-See the Solidity code example provided for ZkSync Era below.
 Proposal calldata on mainnet intended for ZkSync Era should be forwarded through a call to `requestL2Transaction` on the `MailBoxFacet` contract.
 The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example:
 
