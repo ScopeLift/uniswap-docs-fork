@@ -22,21 +22,34 @@ It is important to note that the code provided here is a general template and ma
 Of the 24 chains where Uniswap V3 is deployed there are 10 chains that are OP Stack based and use an `L1CrossDomainMessenger` contract for bridging proposals.
 There are 6 chains that use Wormhole for bridging proposals.
 The remaining 8 chains use a variety of other methods for bridging proposals, all described below.
-
 The table below contains links to the various proposal methods for each chain.
 
-| Proposal Method                                       | Chain(s)                                                                             |
-| ----------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| [Arbitrum - Aliased Timelock](#arbitrum)              | Arbitrum                                                                             |
-| [Avalanche - OmnichainGovernanceExecutor](#avalanche) | Avalanche                                                                            |
-| [Filecoin - TODO](#filecoin)                          | Filecoin                                                                             |
-| [Op Stack - CrossChainAccount](#op-stack)             | Base, Blast, Boba, Linea, Manta Pacific, Mantle, Optimism, Redstone, WorldCoin, Zora |
-| [Polygon - FxChild](#polygon)                         | Polygon                                                                              |
-| [Polygon zkEVM - TODO](#polygon-zkevm)                | Polygon zkEVM                                                                        |
-| [Scroll - CrossChainAccount](#scroll)                 | Scroll                                                                               |
-| [Taiko - InvokableAccount](#taiko)                    | Taiko                                                                                |
-| [Wormhole](#wormhole)                                 | BNB Chain, Celo, Gnosis Chain, Moonbeam, Rootstock, Sei                              |
-| [ZkSync Era - Aliased Timelock](#zksync-era)          | ZkSync Era                                                                           |
+| Chain(s)      | Proposal Method                                       |
+| ------------- | ----------------------------------------------------- |
+| Arbitrum      | [Arbitrum - Aliased Timelock](#arbitrum)              |
+| Avalanche     | [Avalanche - OmnichainGovernanceExecutor](#avalanche) |
+| Base          | [OP Stack - CrossChainAccount](#op-stack)             |
+| Blast         | [OP Stack - CrossChainAccount](#op-stack)             |
+| BNB Chain     | [Wormhole](#wormhole)                                 |
+| Boba          | [OP Stack - CrossChainAccount](#op-stack)             |
+| Celo          | [Wormhole](#wormhole)                                 |
+| Filecoin      | [Filecoin - TODO](#filecoin)                          |
+| Gnosis Chain  | [Wormhole](#wormhole)                                 |
+| Linea         | [OP Stack - CrossChainAccount](#op-stack)             |
+| Manta Pacific | [OP Stack - CrossChainAccount](#op-stack)             |
+| Mantle        | [OP Stack - CrossChainAccount](#op-stack)             |
+| Moonbeam      | [Wormhole](#wormhole)                                 |
+| Optimism      | [OP Stack - CrossChainAccount](#op-stack)             |
+| Polygon       | [Polygon - FxChild](#polygon)                         |
+| Polygon zkEVM | [Polygon zkEVM - TODO](#polygon-zkevm)                |
+| Redstone      | [OP Stack - CrossChainAccount](#op-stack)             |
+| Rootstock     | [Wormhole](#wormhole)                                 |
+| Scroll        | [Scroll - CrossChainAccount](#scroll)                 |
+| Sei           | [Sei - Wormhole](#wormhole)                           |
+| Taiko         | [Taiko - InvokableAccount](#taiko)                    |
+| WorldCoin     | [OP Stack - CrossChainAccount](#op-stack)             |
+| ZkSync Era    | [ZkSync Era - Aliased Timelock](#zksync-era)          |
+| Zora          | [OP Stack - CrossChainAccount](#op-stack)             |
 
 ## Arbitrum
 
