@@ -301,20 +301,132 @@ contract OptimismExample is Script {
 
 Because 10 networks all use the same CrossChainAccount approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions. The definitions for all of the OP Stack based networks are below:
 
-| Network       | l1CrossDomainMessengerAddress              | v3FactoryTargetAddress                     | crossChainAccountTargetAddress             |
-| ------------- | ------------------------------------------ | ------------------------------------------ | ------------------------------------------ |
-| Base          | 0x866E82a600A1414e583f7F13623F1aC5d58b0Afa | 0x33128a8fC17869897dcE68Ed026d694621f6FDfD | 0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9 |
-| Blast         | 0x5D4472f31Bd9385709ec61305AFc749F0fA8e9d0 | 0x792edAdE80af5fC680d96a2eD80A44247D2Cf6Fd | 0x2339C0d23b60739B3E5ABF201F05903D24A26C77 |
-| Boba          | 0x6D4528d192dB72E282265D6092F4B872f9Dff69e | 0xFFCd7Aed9C627E82A765c3247d562239507f6f1B | 0x53163235746CeB81Da32293bb0932e1A599256B4 |
-| Linea - 1     | 0xd19d4B5d358258f05D7B411E21A1460D11B0876F | 0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9 | 0x581F86Da293A1D5Cd087a10E7227a75d2d2201A8 |
-| Manta Pacific | 0x635ba609680c55C3bDd0B3627b4c5dB21b13c310 | 0x06D830e15081f65923674268121FF57Cc54e4e23 | 0x683553d74D9779955a15d57D208234C956B6Eae6 |
-| Mantle        | 0x676A795fe6E43C17c668de16730c3F690FEB7120 | 0x0d922Fb1Bc191F64970ac40376643808b4B74Df9 | 0x9b7aC6735b23578E81260acD34E3668D0cc6000A |
-| Optimism      | 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1 | 0x1F98431c8aD98523631AE4a59f267346ea31F984 | 0xa1dD330d602c32622AA270Ea73d078B803Cb3518 |
-| Redstone      | 0x592C1299e0F8331D81A28C0FC7352Da24eDB444a | 0xece75613Aa9b1680f0421E5B2eF376DF68aa83Bb | 0x2d00e94d78Fc307FC5E6195BBe2fB6aFC2FC07d4 |
-| Worldcoin     | 0xf931a81D18B1766d15695ffc7c1920a62b7e710a | 0x7a5028BDa40e7B173C278C5342087826455ea25a | 0xcb2436774C3e191c85056d248EF4260ce5f27A9D |
-| Zora          | 0xdC40a14d9abd6F410226f1E6de71aE03441ca506 | 0x7145F8aeef1f6510E92164038E1B6F8cB2c42Cbb | 0x36eEC182D0B24Df3DC23115D64DB521A93D5154f |
+:::warning
+**Linea**'s `sendMessage` reverses the order of the `fee` and `message` parameters.
+:::
 
-1 - Slightly different sending code for Linea, with the 'sendMessage' function's `fee` and `message` parameters swapped.
+The relevant OP Stack contract addresses are as follows:
+
+<table>
+  <thead>
+    <tr>
+      <th>Network</th>
+      <th>Contract Addresses</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Base</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x866E82a600A1414e583f7F13623F1aC5d58b0Afa</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x33128a8fC17869897dcE68Ed026d694621f6FDfD</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Blast</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x5D4472f31Bd9385709ec61305AFc749F0fA8e9d0</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x792edAdE80af5fC680d96a2eD80A44247D2Cf6Fd</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x2339C0d23b60739B3E5ABF201F05903D24A26C77</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Boba</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x6D4528d192dB72E282265D6092F4B872f9Dff69e</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xFFCd7Aed9C627E82A765c3247d562239507f6f1B</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x53163235746CeB81Da32293bb0932e1A599256B4</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Linea (see warning)</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xd19d4B5d358258f05D7B411E21A1460D11B0876F</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x1111??</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x581F86Da293A1D5Cd087a10E7227a75d2d2201A8</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Manta Pacific</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x635ba609680c55C3bDd0B3627b4c5dB21b13c310</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x06D830e15081f65923674268121FF57Cc54e4e23</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x683553d74D9779955a15d57D208234C956B6Eae6</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Mantle</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x676A795fe6E43C17c668de16730c3F690FEB7120</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x0d922Fb1Bc191F64970ac40376643808b4B74Df9</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x9b7aC6735b23578E81260acD34E3668D0cc6000A</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Optimism</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x1F98431c8aD98523631AE4a59f267346ea31F984</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xa1dD330d602c32622AA270Ea73d078B803Cb3518</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Redstone</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x592C1299e0F8331D81A28C0FC7352Da24eDB444a</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xece75613Aa9b1680f0421E5B2eF376DF68aa83Bb</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x2d00e94d78Fc307FC5E6195BBe2fB6aFC2FC07d4</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Worldcoin</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xf931a81D18B1766d15695ffc7c1920a62b7e710a</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x7a5028BDa40e7B173C278C5342087826455ea25a</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xcb2436774C3e191c85056d248EF4260ce5f27A9D</span><br />
+      </td>
+    </tr>
+    <tr>
+      <td>Worldcoin</td>
+      <td>
+        <b>l1CrossDomainMessengerAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0xdC40a14d9abd6F410226f1E6de71aE03441ca506</span><br />
+        <b>v3FactoryTargetAddress:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x7145F8aeef1f6510E92164038E1B6F8cB2c42Cbb</span><br />
+        <b>crossChainAccountTarget:</b><br />
+            <span style={{ marginLeft: '20px' }}>0x36eEC182D0B24Df3DC23115D64DB521A93D5154f</span><br />
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## Polygon
 
@@ -611,13 +723,13 @@ contract EthereumToBnbChainSender is Script {
 
 Because 5 networks all use the same Wormhole-based approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 constant definitions. The definitions for all 5 networks that use Wormhole communication are below:
 
-| Network   | WORMHOLE_MESSAGE_RECEIVER_ADDRESS          | CHAIN_ID | V3FactoryTargetAddress                     |
-| --------- | ------------------------------------------ | -------- | ------------------------------------------ |
-| Celo      | 0x0Eb863541278308c3A64F8E908BC646e27BFD071 | 42220    | 0xAfE208a311B21f13EF87E33A90049fC17A7acDEc |
-| Gnosis    | 0xfFA5599136fBaB9af7799A6703b57BB33E5390Cf | 100      | 0xe32F7dD7e3f098D518ff19A22d5f028e076489B1 |
-| Moonbeam  | 0xB2af16D6c7074228fC487F17929De830303E6531 | 1284     | 0xe32F7dD7e3f098D518ff19A22d5f028e076489B1 |
-| Rootstock | 0x38aE7De6f9c51e17f49cF5730DD5F2d29fa20758 | 1329     | 0xaF37EC98A00FD63689CF3060BF3B6784E00caD82 |
-| Sei       | 0xDAA94C43133c6c645017134Ba372DDa4829F34A6 | 30       | 0x75FC67473A91335B5b8F8821277262a13B38c9b3 |
+| Network   | WORMHOLE_MESSAGE_RECEIVER_ADDRESS            | CHAIN_ID | V3FactoryTargetAddress                       |
+| --------- | -------------------------------------------- | -------- | -------------------------------------------- |
+| Celo      | `0x0Eb863541278308c3A64F8E908BC646e27BFD071` | 42220    | `0xAfE208a311B21f13EF87E33A90049fC17A7acDEc` |
+| Gnosis    | `0xfFA5599136fBaB9af7799A6703b57BB33E5390Cf` | 100      | `0xe32F7dD7e3f098D518ff19A22d5f028e076489B1` |
+| Moonbeam  | `0xB2af16D6c7074228fC487F17929De830303E6531` | 1284     | `0xe32F7dD7e3f098D518ff19A22d5f028e076489B1` |
+| Rootstock | `0x38aE7De6f9c51e17f49cF5730DD5F2d29fa20758` | 1329     | `0xaF37EC98A00FD63689CF3060BF3B6784E00caD82` |
+| Sei       | `0xDAA94C43133c6c645017134Ba372DDa4829F34A6` | 30       | `0x75FC67473A91335B5b8F8821277262a13B38c9b3` |
 
 ## ZkSync Era
 
