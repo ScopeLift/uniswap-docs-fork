@@ -53,7 +53,7 @@ The table below contains links to the various proposal methods for each chain.
 
 ## Arbitrum
 
-Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value 0x1111000000000000000000000000000000001111) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown below.
+Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value `0x1111000000000000000000000000000000001111`) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown below.
 
 Proposal calldata on mainnet intended for Arbitrum should be forwarded through a call to `createRetryableTicket` on the Arbitrum Inbox contract.
 The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example:
@@ -142,7 +142,7 @@ contract EthereumToArbitrumSender is Script {
 ## Avalanche
 
 Avalanche makes use of a contract called `OmnichainGovernanceExecutor` to receive proposals from Ethereum mainnet.
-Proposal calldata on mainnet intended for Avalanche should be forwarded through a call to `send` on the contract called LayerZero:EndpointV2.
+Proposal calldata on mainnet intended for Avalanche should be forwarded through a call to `send` on the contract called `LayerZero:EndpointV2`.
 A Solidity code example for sending a proposal to AVAX is below.
 
 ```
@@ -226,8 +226,8 @@ Filecoin EVM ?? TODO: Add details
 
 ## OP Stack
 
-Proposal calldata on mainnet meant for an OP stack chain should be forwarded through a call to sendMessage on the chain's corresponding mainnet L1CrossDomainMessenger contract.
-The call would have doubly-wrapped calldata for the CrossChainAccount `forward` function as well as the ultimate Uniswap contract function call that would effect the change. An example for Optimism:
+Proposal calldata on mainnet meant for an OP stack chain should be forwarded through a call to sendMessage on the chain's corresponding mainnet `L1CrossDomainMessenger` contract.
+The call would have doubly-wrapped calldata for the `CrossChainAccount:forward` function as well as the ultimate Uniswap contract function call that would effect the change. An example for Optimism:
 
 ```
 // SPDX-License-Identifier: UNLICENSED
