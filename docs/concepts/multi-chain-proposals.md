@@ -3,7 +3,7 @@ id: multi-chain-proposals
 title: Multi-Chain Proposals
 ---
 
-This is a living document which represents the current process guidelines for developing and advancing multi-chain Uniswap Governance Proposals. It was last updated Novenber 2024.
+This is a living document which represents the current process guidelines for developing and advancing multi-chain Uniswap Governance Proposals. It was last updated January 2025.
 
 ## Introduction
 
