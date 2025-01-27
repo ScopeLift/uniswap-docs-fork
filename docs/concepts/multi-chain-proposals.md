@@ -17,8 +17,6 @@ This document provides a detailed guide on constructing such proposals for each 
 The code snippets are written as Forge/Foundry scripts, and assume they are being run on the Forge platform, in a code repository with the necessary libraries (forge-std, uniswap-v3-core, and uniswap-v3-periphery) imported.
 It is important to note that the code provided here is a general template and may require modification to suit the specific requirements of the target chain.
 
-## Overview
-
 Of the 24 chains where Uniswap V3 is deployed there are 10 chains that are OP Stack based and use an `L1CrossDomainMessenger` contract for bridging proposals.
 There are 6 chains that use Wormhole for bridging proposals.
 The remaining 8 chains use a variety of other methods for bridging proposals, all described below.
