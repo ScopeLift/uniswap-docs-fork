@@ -1,9 +1,9 @@
 ---
-id: multi-chain-proposals
-title: Multi-Chain Proposals
+id: multichain-proposals
+title: Multichain Proposals
 ---
 
-This is a living document which represents the current process guidelines for developing and advancing multi-chain Uniswap Governance Proposals. It was last updated January 2025.
+This is a living document which represents the current process guidelines for developing and advancing multichain Uniswap Governance Proposals. It was last updated March 2025.
 
 ## Introduction
 
@@ -54,10 +54,10 @@ The table below contains links to the various proposal methods for each chain.
 Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value `0x1111000000000000000000000000000000001111`) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown below.
 
 Proposal calldata on mainnet intended for Arbitrum should be forwarded through a call to `createRetryableTicket` on the Arbitrum Inbox contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/arbitrum-example.sol) ):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/arbitrum-example.sol) ):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -141,10 +141,10 @@ contract EthereumToArbitrumSender is Script {
 
 Avalanche makes use of a contract called `OmnichainGovernanceExecutor` to receive proposals from Ethereum mainnet.
 Proposal calldata on mainnet intended for Avalanche should be forwarded through a call to `send` on the contract called `LayerZero:EndpointV2`.
-A Solidity code example for sending a proposal to AVAX is below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/avalanche-example.sol):
+A Solidity code example for sending a proposal to AVAX is below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/avalanche-example.sol):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -225,10 +225,10 @@ Filecoin EVM ?? TODO: Add details
 ## OP Stack
 
 Proposal calldata on mainnet meant for an OP stack chain should be forwarded through a call to sendMessage on the chain's corresponding mainnet `L1CrossDomainMessenger` contract.
-The call would have doubly-wrapped calldata for the `CrossChainAccount:forward` function as well as the ultimate Uniswap contract function call that would effect the change. An example for Optimism (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/opstack-example.sol)):
+The call would have doubly-wrapped calldata for the `CrossChainAccount:forward` function as well as the ultimate Uniswap contract function call that would effect the change. An example for Optimism (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/opstack-example.sol)):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -297,7 +297,7 @@ contract OptimismExample is Script {
 }
 ```
 
-Because 10 networks all use the same CrossChainAccount approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions. The definitions for all of the OP Stack based networks are below:
+Because 10 networks all use the same CrossChainAccount approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions.
 
 :::warning
 **Linea**'s `sendMessage` reverses the order of the `fee` and `message` parameters.
@@ -309,119 +309,140 @@ The relevant OP Stack contract addresses are as follows:
   <thead>
     <tr>
       <th>Network</th>
-      <th>Contract Addresses</th>
+      <th>Contract</th>
+      <th>Address</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>Base</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x866E82a600A1414e583f7F13623F1aC5d58b0Afa</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x33128a8fC17869897dcE68Ed026d694621f6FDfD</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9</span><br />
-      </td>
+      <th rowspan="3">Base</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x866E82a600A1414e583f7F13623F1aC5d58b0Afa</td>
     </tr>
     <tr>
-      <td>Blast</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x5D4472f31Bd9385709ec61305AFc749F0fA8e9d0</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x792edAdE80af5fC680d96a2eD80A44247D2Cf6Fd</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x2339C0d23b60739B3E5ABF201F05903D24A26C77</span><br />
-      </td>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x33128a8fC17869897dcE68Ed026d694621f6FDfD</td>
     </tr>
     <tr>
-      <td>Boba</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x6D4528d192dB72E282265D6092F4B872f9Dff69e</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xFFCd7Aed9C627E82A765c3247d562239507f6f1B</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x53163235746CeB81Da32293bb0932e1A599256B4</span><br />
-      </td>
+      <td>crossChainAccountTarget</td>
+      <td>0x31FAfd4889FA1269F7a13A66eE0fB458f27D72A9</td>
     </tr>
     <tr>
-      <td>Linea (see warning)</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xd19d4B5d358258f05D7B411E21A1460D11B0876F</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x1111??</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x581F86Da293A1D5Cd087a10E7227a75d2d2201A8</span><br />
-      </td>
+      <th rowspan="3">Blast</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x5D4472f31Bd9385709ec61305AFc749F0fA8e9d0</td>
     </tr>
     <tr>
-      <td>Manta Pacific</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x635ba609680c55C3bDd0B3627b4c5dB21b13c310</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x06D830e15081f65923674268121FF57Cc54e4e23</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x683553d74D9779955a15d57D208234C956B6Eae6</span><br />
-      </td>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x792edAdE80af5fC680d96a2eD80A44247D2Cf6Fd</td>
     </tr>
     <tr>
-      <td>Mantle</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x676A795fe6E43C17c668de16730c3F690FEB7120</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x0d922Fb1Bc191F64970ac40376643808b4B74Df9</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x9b7aC6735b23578E81260acD34E3668D0cc6000A</span><br />
-      </td>
+      <td>crossChainAccountTarget</td>
+      <td>0x2339C0d23b60739B3E5ABF201F05903D24A26C77</td>
     </tr>
     <tr>
-      <td>Optimism</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x1F98431c8aD98523631AE4a59f267346ea31F984</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xa1dD330d602c32622AA270Ea73d078B803Cb3518</span><br />
-      </td>
+      <th rowspan="3">Boba</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x6D4528d192dB72E282265D6092F4B872f9Dff69e</td>
     </tr>
     <tr>
-      <td>Redstone</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x592C1299e0F8331D81A28C0FC7352Da24eDB444a</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xece75613Aa9b1680f0421E5B2eF376DF68aa83Bb</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x2d00e94d78Fc307FC5E6195BBe2fB6aFC2FC07d4</span><br />
-      </td>
+      <td>v3FactoryTargetAddress</td>
+      <td>0xFFCd7Aed9C627E82A765c3247d562239507f6f1B</td>
     </tr>
     <tr>
-      <td>Worldcoin</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xf931a81D18B1766d15695ffc7c1920a62b7e710a</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x7a5028BDa40e7B173C278C5342087826455ea25a</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xcb2436774C3e191c85056d248EF4260ce5f27A9D</span><br />
-      </td>
+      <td>crossChainAccountTarget</td>
+      <td>0x53163235746CeB81Da32293bb0932e1A599256B4</td>
     </tr>
     <tr>
-      <td>Worldcoin</td>
-      <td>
-        <b>l1CrossDomainMessengerAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0xdC40a14d9abd6F410226f1E6de71aE03441ca506</span><br />
-        <b>v3FactoryTargetAddress:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x7145F8aeef1f6510E92164038E1B6F8cB2c42Cbb</span><br />
-        <b>crossChainAccountTarget:</b><br />
-            <span style={{ marginLeft: '20px' }}>0x36eEC182D0B24Df3DC23115D64DB521A93D5154f</span><br />
-      </td>
+      <th rowspan="3">Linea</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0xd19d4B5d358258f05D7B411E21A1460D11B0876F</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x1111??</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0x581F86Da293A1D5Cd087a10E7227a75d2d2201A8</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Manta Pacific</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x635ba609680c55C3bDd0B3627b4c5dB21b13c310</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x06D830e15081f65923674268121FF57Cc54e4e23</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0x683553d74D9779955a15d57D208234C956B6Eae6</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Mantle</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x676A795fe6E43C17c668de16730c3F690FEB7120</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x0d922Fb1Bc191F64970ac40376643808b4B74Df9</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0x9b7aC6735b23578E81260acD34E3668D0cc6000A</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Optimism</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x1F98431c8aD98523631AE4a59f267346ea31F984</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0xa1dD330d602c32622AA270Ea73d078B803Cb3518</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Redstone</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x592C1299e0F8331D81A28C0FC7352Da24eDB444a</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0xece75613Aa9b1680f0421E5B2eF376DF68aa83Bb</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0x2d00e94d78Fc307FC5E6195BBe2fB6aFC2FC07d4</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Worldcoin</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0x7a5028BDa40e7B173C278C5342087826455ea25a</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0xcb2436774C3e191c85056d248EF4260ce5f27A9D</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0xcb2436774C3e191c85056d248EF4260ce5f27A9D</td>
+    </tr>
+    <tr>
+      <th rowspan="3">Worldcoin</th>
+      <td>l1CrossDomainMessenger</td>
+      <td>0xdC40a14d9abd6F410226f1E6de71aE03441ca506</td>
+    </tr>
+    <tr>
+      <td>v3FactoryTargetAddress</td>
+      <td>0x7145F8aeef1f6510E92164038E1B6F8cB2c42Cbb</td>
+    </tr>
+    <tr>
+      <td>crossChainAccountTarget</td>
+      <td>0x36eEC182D0B24Df3DC23115D64DB521A93D5154f</td>
     </tr>
   </tbody>
 </table>
@@ -431,10 +452,10 @@ The relevant OP Stack contract addresses are as follows:
 Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon chain for forwarding the executable proposals to Uniswap V3 on Polygon.
 
 Proposal calldata on mainnet meant for Polygon should be forwarded through a call to `sendMessageToChild` on the chain's corresponding mainnet `FxRoot` contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. The FxRoot/FxChild tunnel would bridge that message to Polygon where FxChild would route the message the EthereumProxy parent contract of UniSwap V3. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/polygon-example.sol)):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change. The FxRoot/FxChild tunnel would bridge that message to Polygon where FxChild would route the message the EthereumProxy parent contract of UniSwap V3. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/polygon-example.sol)):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -501,10 +522,10 @@ Polygon zkEVM uses a different approach than Polygon TODO: Add details
 ## Scroll
 
 Scroll also makes use of the CrossChainAccount contract for receiving proposals from Ethereum mainnet, but the way that messages are sent is different from the other OP Stack approaches.
-Proposal calldata on mainnet meant for the Scroll chain should be forwarded through a call to `sendMessage` on the chain's corresponding mainnet `L1ScrollMessenger` contract. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/scroll-example.sol)):
+Proposal calldata on mainnet meant for the Scroll chain should be forwarded through a call to `sendMessage` on the chain's corresponding mainnet `L1ScrollMessenger` contract. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/scroll-example.sol)):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -576,10 +597,10 @@ contract ScrollExample is Script {
 
 Taiko makes use of a contract called `InvokableAccount`.
 Proposal calldata on mainnet meant for the Taiko chain should be forwarded through a call to`emitSignal`on the chain's corresponding mainnet`SignalService` contract.
-The call would have wrapped calldata for the Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/taiko-example.sol)):
+The call would have wrapped calldata for the Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/taiko-example.sol)):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -641,10 +662,10 @@ There are 5 chains where Uniswap V3 is deployed that use the same Ethereum mainn
 Proposal calldata on mainnet meant for a target chain using Wormhole should be forwarded through a call to the `sendMessage` function of that contract.
 The function takes both a target address for the message receiving contract on the destination chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple destination chains.
 
-A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/wormhole-example.sol):
+A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/wormhole-example.sol):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
@@ -733,10 +754,10 @@ Because 5 networks all use the same Wormhole-based approach for communication, t
 
 ZkSync Era uses the Arbitrum-style approach where the parent of the V3Factory contract is an aliased address, but the method of sending the proposal is different than the one used for Arbitrum.
 Proposal calldata on mainnet intended for ZkSync Era should be forwarded through a call to `requestL2Transaction` on the `MailBoxFacet` contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multi-chain/zksync-example.sol)):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/multichain-proposals/zksync-example.sol)):
 
 ```
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {console2} from "forge-std/console2.sol";
