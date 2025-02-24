@@ -51,7 +51,11 @@ Of the 24 chains where Uniswap V3 is deployed:
 Arbitrum uses an approach where the owner of the V3Factory is a special aliased address (offset by the value `0x1111000000000000000000000000000000001111`) that (when the offset is subtracted away) is the L1 address of the Uniswap DAO Timelock contract. A Solidity code example for sending a proposal to Arbitrum is shown below.
 
 Proposal calldata on mainnet intended for Arbitrum should be forwarded through a call to `createRetryableTicket` on the Arbitrum Inbox contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/arbitrum-example.sol) ):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/arbitrum-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -138,7 +142,10 @@ contract EthereumToArbitrumSender is Script {
 
 Avalanche makes use of a contract called `OmnichainGovernanceExecutor` to receive proposals from Ethereum mainnet.
 Proposal calldata on mainnet intended for Avalanche should be forwarded through a call to `send` on the contract called `LayerZero:EndpointV2`.
-A Solidity code example for sending a proposal to AVAX is below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/avalanche-example.sol):
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/avalanche-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -222,7 +229,11 @@ Filecoin EVM ?? TODO: Add details
 ## OP Stack
 
 Proposal calldata on mainnet meant for an OP stack chain should be forwarded through a call to sendMessage on the chain's corresponding mainnet `L1CrossDomainMessenger` contract.
-The call would have doubly-wrapped calldata for the `CrossChainAccount:forward` function as well as the ultimate Uniswap contract function call that would effect the change. An example for Optimism (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/opstack-example.sol)):
+The call would have doubly-wrapped calldata for the `CrossChainAccount:forward` function as well as the ultimate Uniswap contract function call that would effect the change.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/opstack-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -294,7 +305,7 @@ contract OptimismExample is Script {
 }
 ```
 
-Because 10 networks all use the same CrossChainAccount approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions.
+Because 10 networks all use the same CrossChainAccount approach for communication, the only modifications to the above code snippet for those networks would be to change the first 3 address constant definitions. The exception to this is Linea:
 
 :::warning
 **Linea**'s `sendMessage` reverses the order of the `fee` and `message` parameters.
@@ -429,7 +440,7 @@ The relevant OP Stack contract addresses are as follows:
       <td>0xcb2436774C3e191c85056d248EF4260ce5f27A9D</td>
     </tr>
     <tr>
-      <th rowspan="3">Worldcoin</th>
+      <th rowspan="3">Zora</th>
       <td>l1CrossDomainMessenger</td>
       <td>0xdC40a14d9abd6F410226f1E6de71aE03441ca506</td>
     </tr>
@@ -449,7 +460,11 @@ The relevant OP Stack contract addresses are as follows:
 Polygon makes use of an L1 contract called FxRoot for sending messages (in the case of Uniswap, executable proposals), and contracts called FxChild and EthereumProxy on the Polygon chain for forwarding the executable proposals to Uniswap V3 on Polygon.
 
 Proposal calldata on mainnet meant for Polygon should be forwarded through a call to `sendMessageToChild` on the chain's corresponding mainnet `FxRoot` contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. The FxRoot/FxChild tunnel would bridge that message to Polygon where FxChild would route the message the EthereumProxy parent contract of UniSwap V3. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/polygon-example.sol)):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change. The FxRoot/FxChild tunnel would bridge that message to Polygon where FxChild would route the message the EthereumProxy parent contract of UniSwap V3.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/polygon-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -514,12 +529,18 @@ contract PolygonExample is Script {
 
 ## Polygon zkEVM
 
-Polygon zkEVM uses a different approach than Polygon TODO: Add details
+Polygon zkEVM uses an approach different from Polygon.
+
+TODO: Add details
 
 ## Scroll
 
 Scroll also makes use of the CrossChainAccount contract for receiving proposals from Ethereum mainnet, but the way that messages are sent is different from the other OP Stack approaches.
-Proposal calldata on mainnet meant for the Scroll chain should be forwarded through a call to `sendMessage` on the chain's corresponding mainnet `L1ScrollMessenger` contract. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/scroll-example.sol)):
+Proposal calldata on mainnet meant for the Scroll chain should be forwarded through a call to `sendMessage` on the chain's corresponding mainnet `L1ScrollMessenger` contract.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/scroll-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -594,7 +615,11 @@ contract ScrollExample is Script {
 
 Taiko makes use of a contract called `InvokableAccount`.
 Proposal calldata on mainnet meant for the Taiko chain should be forwarded through a call to`emitSignal`on the chain's corresponding mainnet`SignalService` contract.
-The call would have wrapped calldata for the Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/taiko-example.sol)):
+The call would have wrapped calldata for the Uniswap contract function call that would effect the change.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/taiko-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -659,7 +684,11 @@ There are 5 chains where Uniswap V3 is deployed that use the same Ethereum mainn
 Proposal calldata on mainnet meant for a target chain using Wormhole should be forwarded through a call to the `sendMessage` function of that contract.
 The function takes both a target address for the message receiving contract on the destination chain, as well as the Chain ID of the destination chain as parameters, allowing the function to be used for sending to multiple destination chains.
 
-A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below. See on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/wormhole-example.sol):
+A Solidity code example for sending a proposal to one these chains (BNB Chain) is provided below.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/wormhole-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
@@ -751,7 +780,11 @@ Because 5 networks all use the same Wormhole-based approach for communication, t
 
 ZkSync Era uses the Arbitrum-style approach where the parent of the V3Factory contract is an aliased address, but the method of sending the proposal is different than the one used for Arbitrum.
 Proposal calldata on mainnet intended for ZkSync Era should be forwarded through a call to `requestL2Transaction` on the `MailBoxFacet` contract.
-The call would have wrapped calldata for a Uniswap contract function call that would effect the change. An example (see on github [here](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/zksync-example.sol)):
+The call would have wrapped calldata for a Uniswap contract function call that would effect the change.
+
+#### Example proposal script
+
+[Source](https://github.com/ScopeLift/uniswap-docs-fork/blob/b0da9f6596b3fcc9578adcb32f89a6b0472c0a1a/examples/governance-multichain-proposals/zksync-example.sol)
 
 ```
 // SPDX-License-Identifier: MIT
